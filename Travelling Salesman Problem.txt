@@ -1,0 +1,55 @@
+#include <iostream>
+#include <algorithm>
+#include <limits>
+using namespace std;
+const int MAX_CITIES = 10;
+const int INF = numeric_limits<int>::max();
+int calculateTourDistance(int distanceMatrix[MAX_CITIES][MAX_CITIES], int 
+tour[], int n) {
+ int totalDistance = 0;
+ for (int i = 0; i < n - 1; ++i) {
+ totalDistance += distanceMatrix[tour[i]][tour[i + 1]];
+ }
+ totalDistance += distanceMatrix[tour[n - 1]][tour[0]];
+ return totalDistance;
+}
+void tspBruteForce(int distanceMatrix[MAX_CITIES][MAX_CITIES], int n) {
+ int cities[MAX_CITIES];
+ for (int i = 0; i < n; ++i) {
+ cities[i] = i;
+ }
+ int minDistance = INF;
+ int bestTour[MAX_CITIES];
+ do {
+ int currentDistance = calculateTourDistance(distanceMatrix, cities, n);
+ if (currentDistance < minDistance) {
+ minDistance = currentDistance;
+ for (int i = 0; i < n; ++i) {
+ bestTour[i] = cities[i];
+ }
+ }
+ } while (next_permutation(cities + 1, cities + n));
+ cout << "Best tour: ";
+ for (int i = 0; i < n; ++i) {
+ cout << bestTour[i] << " ";
+ }
+ cout << "\nMinimum distance: " << minDistance << endl;
+}
+int main() {
+ int n;
+ cout << "Enter the number of cities (max " << MAX_CITIES << "): ";
+ cin >> n;
+ if (n > MAX_CITIES) {
+ cout << "Number of cities exceeds the maximum limit!" << endl;
+ return 1;
+ }
+ int distanceMatrix[MAX_CITIES][MAX_CITIES];
+ cout << "Enter the distance matrix (enter " << INF << " for no direct path):\n";
+ for (int i = 0; i < n; ++i) {
+ for (int j = 0; j < n; ++j) {
+ cin >> distanceMatrix[i][j];
+ }
+ }
+ tspBruteForce(distanceMatrix, n);
+ return 0;
+}
