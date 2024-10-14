@@ -1,88 +1,76 @@
+#include <iostream>
+#include <vector>
+#include <climits>
 
-
-#include <bits/stdc++.h>
 using namespace std;
 
-struct Edge{
-int src,dest,wgt;
+// Structure to represent an edge between two nodes
+struct Edge {
+    int src, dest, weight;
 };
 
-struct Graph{
-   int V,E;
-   struct Edge*edge;
-};
+// Function to perform the Bellman-Ford algorithm
+void bellmanFord(int vertices, int edges, vector<Edge> &edgeList, int source) {
+    // Step 1: Initialize distances from the source to all vertices as infinity
+    vector<int> distance(vertices, INT_MAX);
+    distance[source] = 0; // Distance to the source is 0
 
-struct Graph* gengraph(int V,int E)
-{
-  struct Graph*graph=new Graph;
-  graph->V=V;
-  graph->E=E;
-  graph->edge=new Edge[E];
-  return graph;
-}
+    // Step 2: Relax all edges |V| - 1 times
+    for (int i = 1; i <= vertices - 1; i++) {
+        for (int j = 0; j < edges; j++) {
+            int u = edgeList[j].src;
+            int v = edgeList[j].dest;
+            int weight = edgeList[j].weight;
 
-void printarr(int dist[],int n){
-  cout<<"\nVertex Distenace from source:\n";
-  for(int i=0;i<n;i++){
-    cout<<i<<"\t\t"<<dist[i]<<"\n";
-  }
-}
-
-void bellman(struct Graph*graph,int src)
-{
-  int V=graph->V;
-  int E=graph->E;
-  int dist[V];
-  
-  for(int i=0;i<V;i++)
-  {
-    dist[i]=999;
-    dist[src]=0;
-  }
-  
-  for(int i=1;i<=V-1;i++)
-  {
-    for(int j=0;j<E;j++){
-      int u=graph->edge[j].src;
-      int v=graph->edge[j].dest;
-      int wgt=graph->edge[j].wgt;
-      if(dist[u]!=999 && dist[u]+wgt<dist[v])
-      dist[v]=dist[u]+wgt;       
+            // If the edge can relax the distance, update it
+            if (distance[u] != INT_MAX && distance[u] + weight < distance[v]) {
+                distance[v] = distance[u] + weight;
+            }
+        }
     }
-  }
-  
-  for(int i=0;i<E;i++)
-  {
-    int u=graph->edge[i].src;
-    int v=graph->edge[i].dest;
-    int wgt=graph->edge[i].wgt;
-    if(dist[u]!=999 && dist[u]+wgt<dist[v])
-    {
-      cout<<"Graph contains -ve weight cycle";
-      return;
+
+    // Step 3: Check for negative-weight cycles
+    for (int j = 0; j < edges; j++) {
+        int u = edgeList[j].src;
+        int v = edgeList[j].dest;
+        int weight = edgeList[j].weight;
+
+        // If a shorter path is still found, a negative cycle exists
+        if (distance[u] != INT_MAX && distance[u] + weight < distance[v]) {
+            cout << "Graph contains a negative weight cycle!" << endl;
+            return;
+        }
     }
-  }
-  
-  printarr(dist,V);
-  return;
-}
-int main(){
-  int V,E;
-  cout<<"enter number of vertices:";
-  cin>>V;
-  cout<<"\nEnter number of edges";
-  cin>>E;
-  struct Graph*graph=gengraph(V,E);
-  for(int i=0;i<E;i++)
-  {
-   cout<<"Enter edge"<<i+1<<"(src dest wgt): ";
-   cin>>graph->edge[i].src >> graph->edge[i].dest >> graph->edge[i].wgt;
-  }
-  bellman(graph,0);
-  return 0;
+
+    // Output the shortest distances from the source to all vertices
+    cout << "Vertex distances from source " << source << ":\n";
+    for (int i = 0; i < vertices; i++) {
+        if (distance[i] == INT_MAX)
+            cout << "Vertex " << i << ": Infinity\n";
+        else
+            cout << "Vertex " << i << ": " << distance[i] << "\n";
+    }
 }
 
+int main() {
+    int vertices, edges;
+    cout << "Enter the number of vertices: ";
+    cin >> vertices;
+    cout << "Enter the number of edges: ";
+    cin >> edges;
 
+    vector<Edge> edgeList(edges);
+    cout << "Enter each edge with source, destination, and weight:\n";
+    for (int i = 0; i < edges; i++) {
+        cout << "Edge " << i + 1 << " (src, dest, weight): ";
+        cin >> edgeList[i].src >> edgeList[i].dest >> edgeList[i].weight;
+    }
 
+    int source;
+    cout << "Enter the source vertex: ";
+    cin >> source;
 
+    bellmanFord(vertices, edges, edgeList, source);
 
+    return 0;
+}
