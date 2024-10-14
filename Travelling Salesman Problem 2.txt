@@ -1,0 +1,82 @@
+#include <iostream>
+#include <vector>
+#include <limits.h>
+
+using namespace std;
+
+// Function to find the minimum edge cost for a given city
+int findMinEdgeCost(vector<vector<int>> &costMatrix, int city, vector<bool> &visited) {
+    int minCost = INT_MAX;
+    for (int i = 0; i < costMatrix.size(); i++) {
+        if (!visited[i] && costMatrix[city][i] != 0 && costMatrix[city][i] < minCost) {
+            minCost = costMatrix[city][i];
+        }
+    }
+    return (minCost == INT_MAX) ? 0 : minCost;
+}
+
+// Branch and Bound recursive function
+void branchAndBound(vector<vector<int>> &costMatrix, vector<bool> &visited, int currentCity, int currentCost, int level, vector<int> &path, int &minCost, vector<int> &bestPath) {
+    int numCities = costMatrix.size();
+
+    // Base case: if all cities are visited, return to the start city
+    if (level == numCities) {
+        currentCost += costMatrix[currentCity][0]; // Cost to return to the start city
+        if (currentCost < minCost) {
+            minCost = currentCost;
+            bestPath = path;
+            bestPath.push_back(0); // Return to the starting city
+        }
+        return;
+    }
+
+    // Explore all possible next cities (branches)
+    for (int nextCity = 0; nextCity < numCities; nextCity++) {
+        if (!visited[nextCity] && costMatrix[currentCity][nextCity] != 0) {
+            int projectedCost = currentCost + costMatrix[currentCity][nextCity];
+
+            // Calculate a bound using the minimum cost edges from the current city
+            if (projectedCost < minCost) { // Prune if the projected cost is greater than current minCost
+                visited[nextCity] = true;
+                path.push_back(nextCity);
+                branchAndBound(costMatrix, visited, nextCity, projectedCost, level + 1, path, minCost, bestPath);
+                path.pop_back(); // Backtrack
+                visited[nextCity] = false;
+            }
+        }
+    }
+}
+
+int main() {
+    int numCities;
+    cout << "Enter the number of cities: ";
+    cin >> numCities;
+
+    vector<vector<int>> costMatrix(numCities, vector<int>(numCities));
+    cout << "Enter the cost matrix (enter 0 for no direct route between cities):\n";
+    for (int i = 0; i < numCities; i++) {
+        for (int j = 0; j < numCities; j++) {
+            cin >> costMatrix[i][j];
+        }
+    }
+
+    vector<bool> visited(numCities, false);
+    vector<int> path, bestPath;
+    int minCost = INT_MAX;
+
+    // Start the search from city 0
+    visited[0] = true;
+    path.push_back(0);
+
+    branchAndBound(costMatrix, visited, 0, 0, 1, path, minCost, bestPath);
+
+    // Output the result
+    cout << "Minimum cost: " << minCost << "\n";
+    cout << "Best path: ";
+    for (int city : bestPath) {
+        cout << city << " ";
+    }
+    cout << endl;
+
+    return 0;
+}
