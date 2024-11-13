@@ -1,0 +1,4 @@
+cat /var/log/syslog | grep -i networkmanager
+sudo truncate -s 0 /var/log/syslog
+sudo systemctl restart NetworkManager
+cat /var/log/syslog | grep -i "wifi\|wlan\|network"
