@@ -1,66 +1,50 @@
 #include <iostream>
-#include <vector>
-
 using namespace std;
 
-// Function to solve the 0/1 Knapsack problem using dynamic programming
-int knapsack(const vector<int>& weights, const vector<int>& profits, int capacity) {
-    int n = weights.size(); // Number of items
-    
-    // Create a 2D dp table to store maximum profit values for each subproblem
-    vector<vector<int>> dp(n + 1, vector<int>(capacity + 1, 0));
+int knapSack(int weight[], int profit[], int n, int cap) {
+    int arr[n+1][cap+1];
 
-    // Build the dp table
-    for (int i = 1; i <= n; i++) {
-        for (int w = 1; w <= capacity; w++) {
-            if (weights[i - 1] <= w) {
-                // Choose the maximum between including the item or excluding it
-                dp[i][w] = max(profits[i - 1] + dp[i - 1][w - weights[i - 1]], dp[i - 1][w]);
-            } else {
-                // If item weight exceeds current capacity, exclude it
-                dp[i][w] = dp[i - 1][w];
+    for(int i = 0; i <= n; i++) {
+        for(int w = 0; w <= cap; w++) {  // Corrected initialization of 'w'
+            if(i == 0 || w == 0) {
+                arr[i][w] = 0;
+            }
+            else if(weight[i-1] <= w) {
+                arr[i][w] = max(profit[i-1] + arr[i-1][w - weight[i-1]], arr[i-1][w]);
+            }
+            else {
+                arr[i][w] = arr[i-1][w];
             }
         }
-    }
+    } 
 
-    // Display the dp table (optional, for understanding or debugging)
-    cout << "\nKnapsack Table:\n";
-    for (int i = 0; i <= n; i++) {
-        for (int w = 0; w <= capacity; w++) {
-            cout << dp[i][w] << " ";
+    cout << "\nDP Table\n";
+    for(int i = 0; i <= n; i++) {
+        for(int w = 0; w <= cap; w++) {
+            cout << arr[i][w] << "\t";
         }
         cout << endl;
     }
-
-    // The bottom-right cell contains the maximum profit for the given capacity
-    return dp[n][capacity];
+    
+    return arr[n][cap];
 }
 
 int main() {
-    int n, capacity;
-    
-    // Input the number of items and knapsack capacity
-    cout << "Enter the number of items: ";
-    cin >> n;
-    cout << "Enter the capacity of the knapsack: ";
-    cin >> capacity;
+    int n, cap;
 
-    // Input the weights and profits of each item
-    vector<int> weights(n), profits(n);
-    
-    cout << "\nEnter the weights of the items:\n";
-    for (int i = 0; i < n; i++) {
-        cin >> weights[i];
-    }
+    cout << "Enter the number of objects and capacity of the knapSack: ";
+    cin >> n >> cap;
 
-    cout << "\nEnter the profits of the items:\n";
-    for (int i = 0; i < n; i++) {
-        cin >> profits[i];
-    }
+    int profit[n], weight[n];
 
-    // Calculate and display the maximum profit
-    int maxProfit = knapsack(weights, profits, capacity);
-    cout << "\nMaximum profit is: " << maxProfit << endl;
+    cout << "\nEnter the weights: ";
+    for(int i = 0; i < n; i++) cin >> weight[i];
+
+    cout << "\nEnter the profits: ";
+    for(int i = 0; i < n; i++) cin >> profit[i];
+
+    int maxProfit = knapSack(weight, profit, n, cap);
+    cout << "Maximum Profit: " << maxProfit << endl;
 
     return 0;
 }
