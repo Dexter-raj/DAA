@@ -1,76 +1,55 @@
 #include <iostream>
-#include <vector>
 #include <climits>
-
 using namespace std;
 
-// Structure to represent an edge between two nodes
 struct Edge {
-    int src, dest, weight;
+    int src, dest, wgt;
 };
 
-// Function to perform the Bellman-Ford algorithm
-void bellmanFord(int vertices, int edges, vector<Edge> &edgeList, int source) {
-    // Step 1: Initialize distances from the source to all vertices as infinity
-    vector<int> distance(vertices, INT_MAX);
-    distance[source] = 0; // Distance to the source is 0
+void bellmanFord(int V, int E, Edge edges[], int src) {
+    int dist[V];
+    for (int i = 0; i < V; i++) dist[i] = INT_MAX;
+    dist[src] = 0;
 
-    // Step 2: Relax all edges |V| - 1 times
-    for (int i = 1; i <= vertices - 1; i++) {
-        for (int j = 0; j < edges; j++) {
-            int u = edgeList[j].src;
-            int v = edgeList[j].dest;
-            int weight = edgeList[j].weight;
-
-            // If the edge can relax the distance, update it
-            if (distance[u] != INT_MAX && distance[u] + weight < distance[v]) {
-                distance[v] = distance[u] + weight;
-            }
+    // Relax all edges V-1 times
+    for (int i = 1; i < V; i++) {
+        for (int j = 0; j < E; j++) {
+            int u = edges[j].src, v = edges[j].dest, w = edges[j].wgt;
+            if (dist[u] != INT_MAX && dist[u] + w < dist[v])
+                dist[v] = dist[u] + w;
         }
     }
 
-    // Step 3: Check for negative-weight cycles
-    for (int j = 0; j < edges; j++) {
-        int u = edgeList[j].src;
-        int v = edgeList[j].dest;
-        int weight = edgeList[j].weight;
-
-        // If a shorter path is still found, a negative cycle exists
-        if (distance[u] != INT_MAX && distance[u] + weight < distance[v]) {
-            cout << "Graph contains a negative weight cycle!" << endl;
+    // Check for negative weight cycles
+    for (int j = 0; j < E; j++) {
+        int u = edges[j].src, v = edges[j].dest, w = edges[j].wgt;
+        if (dist[u] != INT_MAX && dist[u] + w < dist[v]) {
+            cout << "Graph contains a negative weight cycle\n";
             return;
         }
     }
 
-    // Output the shortest distances from the source to all vertices
-    cout << "Vertex distances from source " << source << ":\n";
-    for (int i = 0; i < vertices; i++) {
-        if (distance[i] == INT_MAX)
-            cout << "Vertex " << i << ": Infinity\n";
-        else
-            cout << "Vertex " << i << ": " << distance[i] << "\n";
-    }
+    // Print distances
+    cout << "Vertex Distance from Source:\n";
+    for (int i = 0; i < V; i++)
+        cout << i << "\t\t" << dist[i] << "\n";
 }
 
 int main() {
-    int vertices, edges;
-    cout << "Enter the number of vertices: ";
-    cin >> vertices;
-    cout << "Enter the number of edges: ";
-    cin >> edges;
+    int V, E;
+    cout << "Enter number of vertices and edges: ";
+    cin >> V >> E;
+    Edge edges[E];
 
-    vector<Edge> edgeList(edges);
-    cout << "Enter each edge with source, destination, and weight:\n";
-    for (int i = 0; i < edges; i++) {
-        cout << "Edge " << i + 1 << " (src, dest, weight): ";
-        cin >> edgeList[i].src >> edgeList[i].dest >> edgeList[i].weight;
+    cout << "Enter each edge (src dest weight):\n";
+    for (int i = 0; i < E; i++) {
+        cin >> edges[i].src >> edges[i].dest >> edges[i].wgt;
     }
 
-    int source;
-    cout << "Enter the source vertex: ";
-    cin >> source;
+    int src;
+    cout << "Enter source vertex: ";
+    cin >> src;
 
-    bellmanFord(vertices, edges, edgeList, source);
-
+    bellmanFord(V, E, edges, src);
     return 0;
 }
